@@ -33,7 +33,7 @@ def name_georun(geofilename, run, iterations):
     gears.append(georun_name)
     gears.append(geo_pre)
     for it in range(1, iterations+1):
-        tmp = "aligned" + '-iter%s-' % it + str(run) + '.xml'
+        tmp = "aligned" + '-iter%s-run00' % it + str(run) + '.xml'
         gears.append(tmp)
     return gears
 
