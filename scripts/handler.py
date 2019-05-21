@@ -325,71 +325,71 @@ def get_latest_file(path):
     return os.path.basename(latest_file)
 
 
-# def runlist_builder(path_to_file, inp_geo_name, run_number, beam_energy, threshold,flag_geo=False, flag_run=False, flag_thr=False):
-#     """
-#     Generates/modifies runlist file. (not working completely as expected)
-#     :param path_to_file: full path to runlist file
-#     :param inp_geo_name: name of geometry file
-#     :param flag_geo: should control changing only geo name
-#     :param flag_run: should control changing only run number
-#     :param flag_thr: should control changing only threshold
-#     :param run_number:
-#     :param beam_energy:
-#     :param threshold:
-#     :return:
-#     """
-#     f = open(path_to_file, "w+")
-#     lines = f.read().splitlines()
-#     if os.path.getsize(path_to_file) == 0:
-#         lines.insert(0, "RunNumber,BeamEnergy,Threshold,GearGeoFile")
-#         lines.insert(1, "")
-#         lines.insert(2, "00" + str(run_number) + "," + str(beam_energy) + "," + str(threshold) + "," + inp_geo_name)
-#     else:
-#         if flag_geo:
-#             myline = lines[2].split(",")
-#             myline[-1] = inp_geo_name
-#             lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
-#         if flag_run:
-#             myline = lines[2].split(",")
-#             myline[0] = "00" + (str(run_number))
-#             lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
-#         if flag_thr:
-#             myline = lines[2].split(",")
-#             myline[0] = str(threshold)
-#             lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
-#     f.close()
-#     f = open(path_to_file, "w")
-#     f.write('\n'.join(lines))
-#     f.write('\n')
-#     f.close()
-    
-    # Call this function in this way:
-    # runlist_builder("runlist.csv", "my_geofile.xml", flag_geo=False, flag_run=True, run_number=1447)
-
-def runlist_builder(path_to_file, gears, run_number, threshold, beam_energy):
+def runlist_builder(path_to_file, inp_geo_name, run_number, beam_energy, threshold, flag_geo=True, flag_run=True, flag_thr=True):
     """
     Generates/modifies runlist file. (not working completely as expected)
     :param path_to_file: full path to runlist file
     :param inp_geo_name: name of geometry file
+    :param flag_geo: should control changing only geo name
+    :param flag_run: should control changing only run number
+    :param flag_thr: should control changing only threshold
     :param run_number:
     :param beam_energy:
     :param threshold:
     :return:
     """
-    file = open(path_to_file, "w+")
-    file.write("RunNumber,BeamEnergy,Threshold,GearGeoFile \n")
-    file.write("\n")
-    try:
-        for gear in gears:
-                file.write("000" + str(run_number) + "," + str(beam_energy) + "," +
-                           str(threshold) + "," + gear)
-    except (IndexError, SyntaxError):
-        print("+{:-^78s}+".format("-"))
-        print("+{:^78s}+".format(" "))
-        print("+ Please check the input list with gear file names +")
-        print("+{:^78s}+".format(" "))
-        print("+{:-^78s}+".format("-"))
-    file.close()
+    f = open(path_to_file, "w+")
+    lines = f.read().splitlines()
+    if os.path.getsize(path_to_file) == 0:
+        lines.insert(0, "RunNumber,BeamEnergy,Threshold,GearGeoFile")
+        lines.insert(1, "")
+        lines.insert(2, "00" + str(run_number) + "," + str(beam_energy) + "," + str(threshold) + "," + inp_geo_name)
+    else:
+        if flag_geo:
+            myline = lines[2].split(",")
+            myline[-1] = inp_geo_name
+            lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
+        if flag_run:
+            myline = lines[2].split(",")
+            myline[0] = "00" + (str(run_number))
+            lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
+        if flag_thr:
+            myline = lines[2].split(",")
+            myline[0] = str(threshold)
+            lines[2] = myline[0] + "," + myline[1] + "," + myline[2] + "," + myline[3]
+    f.close()
+    f = open(path_to_file, "w")
+    f.write('\n'.join(lines))
+    f.write('\n')
+    f.close()
+    
+    # Call this function in this way:
+    # runlist_builder("runlist.csv", "my_geofile.xml", flag_geo=False, flag_run=True, run_number=1447)
+
+# def runlist_builder(path_to_file, gears, run_number, threshold, beam_energy):
+#     """
+#     Generates/modifies runlist file. (not working completely as expected)
+#     :param path_to_file: full path to runlist file
+#     :param inp_geo_name: name of geometry file
+#     :param run_number:
+#     :param beam_energy:
+#     :param threshold:
+#     :return:
+#     """
+#     file = open(path_to_file, "w+")
+#     file.write("RunNumber,BeamEnergy,Threshold,GearGeoFile \n")
+#     file.write("\n")
+#     try:
+#         for gear in range(len(gears)):
+#                 file.write("000" + str(run_number) + "," + str(beam_energy) + "," +
+#                            str(threshold) + "," + gears[gears] + "\n")
+#     except (IndexError, SyntaxError):
+#         print("+{:-^78s}+".format("-"))
+#         print("+{:^78s}+".format(" "))
+#         print("+ Please check the input list with gear file names +")
+#         print("+{:^78s}+".format(" "))
+#         print("+{:-^78s}+".format("-"))
+#     file.close()
 
 
 def build_bashscript_reconpos(run_number, your_script_name="runProcessor.sh", path_to_file="./runTelescope.sh", job_same_time=5):
