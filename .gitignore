@@ -4,3 +4,12 @@
 *.log
 *.txt
 *.xml
+*.res
+*.res~
+*.root~
+*.his~
+*.bin~
+*.log~
+*.txt~
+*.xml~
+*.__af
