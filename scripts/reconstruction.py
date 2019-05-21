@@ -1,6 +1,6 @@
 from handler import *
 from runner import *
-from subprocess import call
+from subprocess import check_call, CalledProcessError
 import sys
 
 inifile = main()
@@ -22,14 +22,15 @@ basic_geo = get_configuration(inifile, "FILENAME", "basicGeometryFilename")
 beam_energy = get_configuration(inifile, "RUNSETTINGS", "beam_energy")
 run_list = get_configuration(inifile, "RUNSETTINGS", "runList")
 iterations = int(get_configuration(inifile, "RUNSETTINGS", "alignIterations"))
-eu_processors = get_configuration(inifile, "RUNSETTINGS", "reconstProcessors")
 thr = get_configuration(inifile, "RUNSETTINGS", "threshold")
 
 # Creating directories to store gear files and filepaths
-geo_folder(geometry_files_path)
 file_config = config_path + config_file
 file_geo = geometry_files_path + basic_geo
 no_debugg = False
+
+# Updating config file
+up_from_ini(file_config, inifile)
 
 # Checking that the confing file has the right number of patternRecognition and GBLAlign iterations
 with open(file_config) as cfgfile:
@@ -38,59 +39,79 @@ with open(file_config) as cfgfile:
     count_gbl = float(data.count("GBLAlign"))/2.
 cfgfile.close()
 
-for run in run_list:
+for run_number in run_list:
     # Creating runlist with gear files to be used
-    gears = name_georun(basic_geo, run, iterations)
-    for gear in gears:
-        runlist_builder(runlist_path + runlist_file, gear, thr, beam_energy)
+    gears = name_georun(basic_geo, run_number, iterations)
 
     # Creating directory to store gear files per run
-    gears_dir = geometry_files_path + "/" + "run_%s" % run
-    call("mkdir " + gears_dir, shell=True)
+    gears_dir = geometry_files_path + "run_%s" % run_number
+    try:
+        check_call("mkdir " + gears_dir, shell=True)
+    except CalledProcessError:
+        print("\n+---------------------------------------------------------+")
+        print("Directory " + "run_%s" % run_number + " already initialized")
+        print("+---------------------------------------------------------+\n")
 
+    # Creating run specific gear file
+    check_call("cp " + file_geo + " " + geometry_files_path + gears[0], shell=True)
+
+    # +-----------------------------------------------------------
     # Reconstruction process begins
+    # +-----------------------------------------------------------
 
     # Running noisypixel, clustering and hitmaker
-    run_recon(config_path + config_file, runlist_path + runlist_file, "noisypixel", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "clustering", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "hitmaker", run)
+    if True:
+        runlist_builder(runlist_path + runlist_file, gears[0], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "noisypixel", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "clustering", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "hitmaker", run_number)
 
     # Running pattern recognition and GBLAlign iteration 1
-    run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition1", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign1", run)
+    if True:
+        runlist_builder(runlist_path + runlist_file, gears[1], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition1", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign1", run_number)
 
     # Running pattern recognition and GBLAlign iteration 2
-    run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition2", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign2", run)
+    if False:
+        runlist_builder(runlist_path + runlist_file, gears[2], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition2", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign2", run_number)
 
     # Running pattern recognition and GBLAlign iteration 3
-    run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition3", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign3", run)
+    if False:
+        runlist_builder(runlist_path + runlist_file, gears[3], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition3", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign3", run_number)
 
     # Running pattern recognition and GBLAlign iteration 4
-    run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition4", run)
-    run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign4", run)
+    if False:
+        runlist_builder(runlist_path + runlist_file, gears[4], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition4", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign4", run_number)
 
+    no_debugg = False
     if no_debugg:
         if count_pattern != iterations or count_gbl != iterations:
             print("The number of GBLAlig ({0}) or patternRecognition ({1}) sections in your config does not match"
                   " the number of iterations ({2})".format(count_gbl, count_pattern, iterations))
         else:
             for it in range(1, iterations + 1):
-                run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition%s" % it, run)
-                run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign%s" % it, run)
+                run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition%s" % it, run_number)
+                run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign%s" % it, run_number)
 
                 # Checking alignment and stopping if the number of rejects is too large
-                logzip = get_configuration(inifile, "PATHS", "LogPath") + "GBLAlign-00" + str(run) + ".zip"
-                if readzipfile(logzip, "GBLAlign-00" + str(run) + ".log"):
+                logzip = get_configuration(inifile, "PATHS", "LogPath") + "GBLAlign-00" + str(run_number) + ".zip"
+                if readzipfile(logzip, "GBLAlign-00" + str(run_number) + ".log"):
                     print("Check your cuts, the alignment has crashed")
                     break
                 else:
                     print("Good alignment!! continuing")
 
-
-    # Popen(["ls " + input_path + "*00" + str(run) + "*"], stdout=PIPE, shell=True)
-
-
-
-
+    # Cleaning and organizing geometry directory
+    try:
+        check_call("rm " + geometry_files_path + gears[0], shell=True)
+        check_call("mv " + geometry_files_path + gears[1] + " " + geometry_files_path + "run_%s" % run_number + "/", shell=True)
+        check_call("mv " + geometry_files_path + gears[2] + " " + geometry_files_path + "run_%s" % run_number + "/", shell=True)
+    except CalledProcessError:
+        print("")
