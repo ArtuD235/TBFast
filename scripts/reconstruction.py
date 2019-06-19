@@ -44,10 +44,11 @@ for run_number in run_list:
 
     # Creating runlist with gear files to be used
     gears = name_georun(basic_geo, run_number, iterations)
+    # print(gears, len(gears))
 
     # Creating directory to store gear files per run
     gears_dir = geometry_files_path + "run_%s" % run_number
-    print(gears)
+
     try:
         check_call("mkdir " + gears_dir, shell=True)
     except CalledProcessError:
@@ -79,6 +80,7 @@ for run_number in run_list:
 
     # Running pattern recognition and GBLAlign iteration 2
     if False:
+        runlist_builder(runlist_path + runlist_file, gears[2], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition2", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign2", run_number)
         runlist_builder(runlist_path + runlist_file, gears[3], run_number, beam_energy, thr)
@@ -86,6 +88,7 @@ for run_number in run_list:
 
     # Running pattern recognition and GBLAlign iteration 3
     if False:
+        runlist_builder(runlist_path + runlist_file, gears[3], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition3", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign3", run_number)
         runlist_builder(runlist_path + runlist_file, gears[4], run_number, beam_energy, thr)
@@ -96,9 +99,30 @@ for run_number in run_list:
         runlist_builder(runlist_path + runlist_file, gears[4], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition4", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign4", run_number)
+        runlist_builder(runlist_path + runlist_file, gears[5], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition4", run_number)
 
-    no_debugg = False
-    if no_debugg:
+    # Running pattern recognition and GBLAlign iteration 5
+    if False:
+        runlist_builder(runlist_path + runlist_file, gears[5], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition5", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign5", run_number)
+        runlist_builder(runlist_path + runlist_file, gears[6], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition5", run_number)
+
+    if False:
+        last_gear = gears[6].split(".")[0] + "_last.xml"
+        for i in range(1, 2):
+            check_call("mv " + geometry_files_path + gears[6] + " " + geometry_files_path + last_gear, shell=True)
+            # print("mv " + geometry_files_path + gears[6] + " " + geometry_files_path + last_gear)
+            runlist_builder(runlist_path + runlist_file, last_gear, run_number, beam_energy, thr)
+            run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition5", run_number)
+            run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign5", run_number)
+        runlist_builder(runlist_path + runlist_file, gears[6], run_number, beam_energy, thr)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition5", run_number)
+
+    no_debug = False
+    if no_debug:
         if count_pattern != iterations or count_gbl != iterations:
             print("The number of GBLAlig ({0}) or patternRecognition ({1}) sections in your config does not match"
                   " the number of iterations ({2})".format(count_gbl, count_pattern, iterations))
@@ -116,11 +140,11 @@ for run_number in run_list:
                     print("Good alignment!! continuing")
 
     # Cleaning and organizing geometry directory
-    organize = True
+    organize = False
     if organize:
         try:
             check_call("rm " + geometry_files_path + gears[0], shell=True)
-            for file in range(1, len(gears)+1):
+            for file in range(2, len(gears)):
                 check_call("mv " + geometry_files_path + gears[file] + " " + geometry_files_path + "run_%s" % run_number + "/", shell=True)
         except CalledProcessError:
             print("")
