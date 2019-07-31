@@ -79,7 +79,7 @@ for run_number in run_list:
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognitionMimosas1", run_number)
         
     # Running mimosas alignment 2      
-    if True:
+    if False:
         runlist_builder(runlist_path + runlist_file, gears[2], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognitionMimosas2", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlignMimosas2", run_number)
@@ -94,9 +94,8 @@ for run_number in run_list:
         runlist_builder(runlist_path + runlist_file, gears[4], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognitionMimosas3", run_number)
         
-
     # Running pattern recognition and GBLAlign iteration 1
-    if False:
+    if True:
         runlist_builder(runlist_path + runlist_file, gears[4], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition1", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "GBLAlign1", run_number)

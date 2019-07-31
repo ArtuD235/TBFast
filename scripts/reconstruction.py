@@ -44,7 +44,7 @@ for run_number in run_list:
 
     # Creating runlist with gear files to be used
     gears = name_georun(basic_geo, run_number, iterations)
-    # print(gears, len(gears))
+    print(gears, len(gears))
 
     # Creating directory to store gear files per run
     gears_dir = geometry_files_path + "run_%s" % run_number
@@ -62,12 +62,15 @@ for run_number in run_list:
     # +-----------------------------------------------------------
     # Reconstruction process begins
     # +-----------------------------------------------------------
-
+    #  X = 29.24 and Y = 26.88 alpide pitches
     # Running noisypixel, clustering and hitmaker
     if False:
         runlist_builder(runlist_path + runlist_file, gears[0], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "noisypixel", run_number)
         run_recon(config_path + config_file, runlist_path + runlist_file, "clustering", run_number)
+        run_recon(config_path + config_file, runlist_path + runlist_file, "hitmaker", run_number)
+        check_call("mv " + geometry_files_path + gears[1] + " " + geometry_files_path + gears[0], shell=True)
+        runlist_builder(runlist_path + runlist_file, gears[0], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "hitmaker", run_number)
 
     # Running pattern recognition and GBLAlign iteration 1
@@ -110,9 +113,9 @@ for run_number in run_list:
         runlist_builder(runlist_path + runlist_file, gears[6], run_number, beam_energy, thr)
         run_recon(config_path + config_file, runlist_path + runlist_file, "patternRecognition5", run_number)
 
-    if False:
+    if True:
         last_gear = gears[6].split(".")[0] + "_last.xml"
-        for i in range(1, 2):
+        for i in range(1, 4):
             check_call("mv " + geometry_files_path + gears[6] + " " + geometry_files_path + last_gear, shell=True)
             # print("mv " + geometry_files_path + gears[6] + " " + geometry_files_path + last_gear)
             runlist_builder(runlist_path + runlist_file, last_gear, run_number, beam_energy, thr)
